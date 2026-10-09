@@ -1,17 +1,213 @@
-afficherPhrase();
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mes cartes pour faire des phrases</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f2f6fc;
+      color: #24324a;
+    }
+
+    h1, h2 { text-align: center; }
+
+    #cartes {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .carte {
+      width: 170px;
+      padding: 12px;
+      border: 3px solid #d4dfef;
+      border-radius: 16px;
+      background: white;
+      text-align: center;
+      cursor: pointer;
+      font-size: 20px;
+    }
+
+    .carte:hover { border-color: #527de5; }
+
+    .carte img {
+      width: 140px;
+      height: 110px;
+      object-fit: contain;
+    }
+
+    .carte button, #vider {
+      margin: 5px;
+      padding: 8px 12px;
+      border: 0;
+      border-radius: 8px;
+      background: #e4ebfa;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    #zonePhrase {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      min-height: 90px;
+      padding: 15px;
+      background: white;
+      border: 2px dashed #9aafd2;
+      border-radius: 14px;
+    }
+
+    .mot {
+      padding: 10px;
+      border-radius: 10px;
+      background: #e8f0ff;
+      text-align: center;
+    }
+
+    .mot button { cursor: pointer; }
+
+    .actions {
+      text-align: center;
+      margin: 15px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Mes cartes pour faire des phrases</h1>
+
+  <h2>Choisis tes cartes</h2>
+  <div id="cartes"></div>
+
+  <h2>Ma phrase</h2>
+  <div id="zonePhrase">Choisis une carte pour commencer.</div>
+
+  <div class="actions">
+    <button id="vider">Effacer ma phrase</button>
+  </div>
+
+  <script>
+    const cartes = [
+      {
+        texte: "Le chat",
+        image: "https://placehold.co/140x110/fff0cc/333?text=Le+chat",
+        audio: ""
+      },
+      {
+        texte: "mange",
+        image: "https://placehold.co/140x110/d9f2df/333?text=mange",
+        audio: ""
+      },
+      {
+        texte: "une pomme.",
+        image: "https://placehold.co/140x110/ffe0e0/333?text=une+pomme",
+        audio: ""
+      }
+    ];
+
+    let selection = [];
+
+    function afficherCartes() {
+      const zone = document.getElementById("cartes");
+      zone.replaceChildren();
+
+      cartes.forEach((carte) => {
+        const bloc = document.createElement("div");
+        bloc.className = "carte";
+
+        const image = document.createElement("img");
+        image.src = carte.image;
+        image.alt = carte.texte;
+
+        const texte = document.createElement("div");
+        texte.textContent = carte.texte;
+
+        const choisir = document.createElement("button");
+        choisir.textContent = "Ajouter";
+        choisir.onclick = () => {
+          selection.push(carte);
+          afficherPhrase();
         };
 
-        bloc.append(avant, texte, apres, retirer);
-        zonePhrase.append(bloc);
+        bloc.append(image, texte, choisir);
+
+        if (carte.audio) {
+          const son = document.createElement("button");
+          son.textContent = "🔊 Écouter";
+          son.onclick = (event) => {
+            event.stopPropagation();
+            const audio = new Audio(carte.audio);
+            audio.play();
+          };
+          bloc.appendChild(son);
+        }
+
+        zone.appendChild(bloc);
+      });
+    }
+
+    function afficherPhrase() {
+      const zone = document.getElementById("zonePhrase");
+      zone.replaceChildren();
+
+      if (selection.length === 0) {
+        zone.textContent = "Choisis une carte pour commencer.";
+        return;
+      }
+
+      selection.forEach((carte, index) => {
+        const bloc = document.createElement("div");
+        bloc.className = "mot";
+
+        const texte = document.createElement("div");
+        texte.textContent = carte.texte;
+
+        const avant = document.createElement("button");
+        avant.textContent = "←";
+        avant.title = "Déplacer vers la gauche";
+        avant.disabled = index === 0;
+        avant.onclick = () => {
+          [selection[index - 1], selection[index]] =
+            [selection[index], selection[index - 1]];
+          afficherPhrase();
+        };
+
+        const apres = document.createElement("button");
+        apres.textContent = "→";
+        apres.title = "Déplacer vers la droite";
+        apres.disabled = index === selection.length - 1;
+        apres.onclick = () => {
+          [selection[index], selection[index + 1]] =
+            [selection[index + 1], selection[index]];
+          afficherPhrase();
+        };
+
+        const retirer = document.createElement("button");
+        retirer.textContent = "×";
+        retirer.title = "Retirer cette carte";
+        retirer.onclick = () => {
+          selection.splice(index, 1);
+          afficherPhrase();
+        };
+
+        bloc.append(texte, avant, apres, retirer);
+        zone.appendChild(bloc);
       });
     }
 
     document.getElementById("vider").onclick = () => {
-      selection.length = 0;
+      selection = [];
       afficherPhrase();
     };
 
     afficherCartes();
+    afficherPhrase();
   </script>
 </body>
 </html>
