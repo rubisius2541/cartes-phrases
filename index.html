@@ -197,6 +197,19 @@ function afficherPhrase() {
     image.style.width = "110px";
     image.style.height = "90px";
     image.style.objectFit = "contain";
+    
+    const audio = document.createElement("audio");
+audio.src = "audio/" + fichier.replace(/\.[^/.]+$/, ".mp3");
+audio.preload = "none";
+
+const boutonAudio = document.createElement("button");
+boutonAudio.textContent = "🔊";
+boutonAudio.title = "Listen to this card";
+
+boutonAudio.onclick = () => {
+  audio.currentTime = 0;
+  audio.play();
+};
 
     const retirer = document.createElement("button");
     retirer.textContent = "×";
@@ -214,7 +227,7 @@ function afficherPhrase() {
       afficherCartes();
     };
 
-    bloc.append(image, retirer);
+bloc.append(image, boutonAudio, retirer);
     zone.appendChild(bloc);
   });
 
