@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mes cartes pour faire des phrases</title>
+  <title>My Sentence Building Cards</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -80,134 +80,165 @@
   </style>
 </head>
 <body>
-  <h1>Mes cartes pour faire des phrases</h1>
+  <h1>My Sentence Building Cards</h1>
 
-  <h2>Choisis tes cartes</h2>
+  <h2>Choose your cards</h2>
   <div id="cartes"></div>
 
-  <h2>Ma phrase</h2>
-  <div id="zonePhrase">Choisis une carte pour commencer.</div>
+  <h2>My sentence</h2>
+  <div id="zonePhrase">Choose a card to get started.</div>
 
   <div class="actions">
-    <button id="vider">Effacer ma phrase</button>
+    <button id="vider">Clear my sentence</button>
   </div>
 
   <script>
-    const cartes = [
-      {
-        texte: "Le chat",
-        image: "https://placehold.co/140x110/fff0cc/333?text=Le+chat",
-        audio: ""
-      },
-      {
-        texte: "mange",
-        image: "https://placehold.co/140x110/d9f2df/333?text=mange",
-        audio: ""
-      },
-      {
-        texte: "une pomme.",
-        image: "https://placehold.co/140x110/ffe0e0/333?text=une+pomme",
-        audio: ""
-      }
-    ];
+   const categories = [
+  {
+    name: "TIME",
+    question: "When?",
+    cards: ["morning.jpg", "afternoon.jpg", "evening.jpg", "night.jpg"]
+  },
+  {
+    name: "ANIMAL",
+    question: "Who?",
+    cards: [
+      "bear.jpg", "beaver.jpg", "camel.jpg", "cow.jpg",
+      "deer.jpg", "dog.jpg", "fox.jpg", "marmot.jpg",
+      "rabbit.jpg", "redpanda.jpg", "scorpion.jpg",
+      "sheep.jpg", "snowleopard.jpg", "squirrel.jpg",
+      "turtle.jpg"
+    ]
+  },
+  {
+    name: "ACTION",
+    question: "What is it doing?",
+    cards: [
+      "eating.jpg", "hiding.jpg", "jumping.jpg",
+      "playing.jpg", "reading.jpg", "running.jpg",
+      "singing.jpg", "sitting.jpg", "sleeping.jpg",
+      "spinning.jpg"
+    ]
+  },
+  {
+    name: "PLACE",
+    question: "Where?",
+    cards: [
+      "desert.jpg", "farm.jpg", "forest.jpg",
+      "mountains.jpg", "sea.jpg"
+    ]
+  }
+];
 
-    let selection = [];
+let selection = [null, null, null, null];
 
-    function afficherCartes() {
-      const zone = document.getElementById("cartes");
-      zone.replaceChildren();
+function afficherCartes() {
+  const zone = document.getElementById("cartes");
+  zone.replaceChildren();
 
-      cartes.forEach((carte) => {
-        const bloc = document.createElement("div");
-        bloc.className = "carte";
+  const prochaineCategorie = selection.findIndex(carte => carte === null);
 
-        const image = document.createElement("img");
-        image.src = carte.image;
-        image.alt = carte.texte;
+  if (prochaineCategorie === -1) {
+    zone.textContent = "Well done! You have built your sentence!";
+    return;
+  }
 
-        const texte = document.createElement("div");
-        texte.textContent = carte.texte;
+  const categorie = categories[prochaineCategorie];
 
-        const choisir = document.createElement("button");
-        choisir.textContent = "Ajouter";
-        choisir.onclick = () => {
-          selection.push(carte);
-          afficherPhrase();
-        };
+  const titre = document.createElement("h2");
+  titre.textContent = categorie.name + " – " + categorie.question;
+  zone.appendChild(titre);
 
-        bloc.append(image, texte, choisir);
+  const grille = document.createElement("div");
+  grille.style.display = "flex";
+  grille.style.flexWrap = "wrap";
+  grille.style.justifyContent = "center";
+  grille.style.gap = "16px";
+  grille.style.width = "100%";
 
-        if (carte.audio) {
-          const son = document.createElement("button");
-          son.textContent = "🔊 Écouter";
-          son.onclick = (event) => {
-            event.stopPropagation();
-            const audio = new Audio(carte.audio);
-            audio.play();
-          };
-          bloc.appendChild(son);
-        }
+  categorie.cards.forEach(fichier => {
+    const bloc = document.createElement("div");
+    bloc.className = "carte";
 
-        zone.appendChild(bloc);
-      });
-    }
+    const image = document.createElement("img");
+    image.src = fichier;
+    image.alt = categorie.name + " card";
+    image.style.width = "140px";
+    image.style.height = "110px";
+    image.style.objectFit = "contain";
 
-    function afficherPhrase() {
-      const zone = document.getElementById("zonePhrase");
-      zone.replaceChildren();
+    bloc.appendChild(image);
 
-      if (selection.length === 0) {
-        zone.textContent = "Choisis une carte pour commencer.";
-        return;
-      }
-
-      selection.forEach((carte, index) => {
-        const bloc = document.createElement("div");
-        bloc.className = "mot";
-
-        const texte = document.createElement("div");
-        texte.textContent = carte.texte;
-
-        const avant = document.createElement("button");
-        avant.textContent = "←";
-        avant.title = "Déplacer vers la gauche";
-        avant.disabled = index === 0;
-        avant.onclick = () => {
-          [selection[index - 1], selection[index]] =
-            [selection[index], selection[index - 1]];
-          afficherPhrase();
-        };
-
-        const apres = document.createElement("button");
-        apres.textContent = "→";
-        apres.title = "Déplacer vers la droite";
-        apres.disabled = index === selection.length - 1;
-        apres.onclick = () => {
-          [selection[index], selection[index + 1]] =
-            [selection[index + 1], selection[index]];
-          afficherPhrase();
-        };
-
-        const retirer = document.createElement("button");
-        retirer.textContent = "×";
-        retirer.title = "Retirer cette carte";
-        retirer.onclick = () => {
-          selection.splice(index, 1);
-          afficherPhrase();
-        };
-
-        bloc.append(texte, avant, apres, retirer);
-        zone.appendChild(bloc);
-      });
-    }
-
-    document.getElementById("vider").onclick = () => {
-      selection = [];
+    bloc.onclick = () => {
+      selection[prochaineCategorie] = fichier;
       afficherPhrase();
+      afficherCartes();
     };
 
-    afficherCartes();
-    afficherPhrase();
+    grille.appendChild(bloc);
+  });
+
+  zone.appendChild(grille);
+}
+
+function afficherPhrase() {
+  const zone = document.getElementById("zonePhrase");
+  zone.replaceChildren();
+
+  selection.forEach((fichier, index) => {
+    if (!fichier) return;
+
+    const bloc = document.createElement("div");
+    bloc.className = "mot";
+
+    const image = document.createElement("img");
+    image.src = fichier;
+    image.alt = categories[index].name;
+    image.style.width = "110px";
+    image.style.height = "90px";
+    image.style.objectFit = "contain";
+
+    const retirer = document.createElement("button");
+    retirer.textContent = "×";
+    retirer.title = "Remove this card";
+
+    retirer.onclick = () => {
+      selection[index] = null;
+
+      // Clear all later choices to preserve the required order.
+      for (let i = index + 1; i < selection.length; i++) {
+        selection[i] = null;
+      }
+
+      afficherPhrase();
+      afficherCartes();
+    };
+
+    bloc.append(image, retirer);
+    zone.appendChild(bloc);
+  });
+
+  if (selection.every(carte => carte !== null)) {
+    const message = document.createElement("p");
+    message.textContent = "Great job! Your sentence is complete!";
+    message.style.width = "100%";
+    message.style.textAlign = "center";
+    zone.appendChild(message);
+  } else if (selection.every(carte => carte === null)) {
+    zone.textContent = "Choose a TIME card to get started.";
+  }
+}
+
+document.getElementById("vider").textContent = "Clear my sentence";
+
+document.getElementById("vider").onclick = () => {
+  selection = [null, null, null, null];
+  afficherPhrase();
+  afficherCartes();
+};
+
+afficherCartes();
+afficherPhrase();
   </script>
 </body>
 </html>
