@@ -198,17 +198,22 @@ function afficherPhrase() {
     image.style.height = "90px";
     image.style.objectFit = "contain";
     
-    const audio = document.createElement("audio");
-audio.src = "audio/" + fichier.replace(/\.[^/.]+$/, ".mp3");
-audio.preload = "none";
+ const audio = new Audio(
+  "audio/" + fichier.replace(/\.[^/.]+$/, ".mp3")
+);
 
 const boutonAudio = document.createElement("button");
-boutonAudio.textContent = "🔊";
+boutonAudio.textContent = "🔊 Listen";
 boutonAudio.title = "Listen to this card";
 
-boutonAudio.onclick = () => {
+boutonAudio.onclick = (event) => {
+  event.stopPropagation();
   audio.currentTime = 0;
-  audio.play();
+
+  audio.play().catch(error => {
+    console.error("Audio playback error:", error);
+    alert("Unable to play this audio file.");
+  });
 };
 
     const retirer = document.createElement("button");
